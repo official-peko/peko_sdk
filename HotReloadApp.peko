@@ -1,0 +1,54 @@
+app_width: int = 0;
+app_height: int = 0;
+app_title: string = "";
+
+app_ready: bool = false;
+
+fn OnStart() {
+    wv := webview::WebView("App Title", 500, 500, "https://www.webpagetest.org/blank.html");
+
+    current_wv_route := "";
+
+    sockets::open_socket(7356, closure[wv, current_wv_route](req: sockets::Request) => sockets::Response {
+        update_request := json::json(req.get_request())? as json::JsonObject;
+        update_type := update_request["type"]? as json::JsonString;
+
+        if update_type.get_string() == "redirect" {
+            new_route := update_request["path"]? as json::JsonString;
+            current_wv_route = new_route.get_string();
+        } else if update_type.get_string() == "new_socket" {
+            new_width := update_request["width"]? as json::JsonNumber;
+            new_height := update_request["height"]? as json::JsonNumber;
+            new_title := update_request["title"]? as json::JsonString;
+            
+            app_title = new_title.get_string();
+            app_width = new_width.get_number();
+            app_height = new_height.get_number();
+
+            while !app_ready {
+                extern::sleep(10)
+            }
+
+            new_port := update_request["port"]? as json::JsonString;
+            wv.navigate(`http://127.0.0.1:${new_port.get_string()}/${current_wv_route}`);
+            sockets::Request("ready").send_no_response("localhost", 7357);
+        }
+
+        return sockets::Response("OK");
+    });
+
+    threads::new_thread(closure() {
+        Runtime::Sleep(1);
+        sockets::Request("ready").send_no_response("localhost", 7357);
+    });
+
+    while app_width == 0 {
+        extern::sleep(10);
+    }
+
+    wv.set_size(app_width, app_height);
+    wv.set_title(app_title);
+
+    app_ready = true;
+    wv.run();
+}

@@ -1,0 +1,38 @@
+#!/bin/zsh
+alias peko=/Users/preston/Work/peko/compiler/peko_cli/target/debug/peko_cli
+
+if [ -f $(pwd)/build.sh ]; then
+    zsh $(pwd)/build.sh
+else
+    for source in $(find $1 -name "*.c"); do \
+        source_base=$(basename $source); \
+        clang $(peko clangflags --nostd --os=macos --arch=x86_64) $source -o $(pwd)/../objects/macos/x86_64/${source_base%.*}.o; \
+        clang $(peko clangflags --nostd --os=macos --arch=arm) $source -o $(pwd)/../objects/macos/arm/${source_base%.*}.o; \
+
+        clang $(peko clangflags --nostd --os=linux --arch=x86_64) $source -o $(pwd)/../objects/linux/x86_64/${source_base%.*}.o; \
+        clang $(peko clangflags --nostd --os=linux --arch=arm) $source -o $(pwd)/../objects/linux/arm/${source_base%.*}.o; \
+
+        clang $(peko clangflags --nostd --os=ios --arch=x86_64) $source -o $(pwd)/../objects/ios/x86_64/${source_base%.*}.o; \
+        clang $(peko clangflags --nostd --os=ios --arch=arm) $source -o $(pwd)/../objects/ios/arm/${source_base%.*}.o; \
+
+        clang $(peko clangflags --nostd --os=windows --arch=x86_64) $source -o $(pwd)/../objects/windows/${source_base%.*}.o; \
+
+        clang $(peko clangflags --nostd --os=android --arch=arm) $source -o $(pwd)/../objects/android/${source_base%.*}.o; \
+    done;
+
+    for source in $(find $1 -name "*.cc"); do \
+        source_base=$(basename $source); \
+        clang++ $(peko clangflags --os=macos --arch=x86_64) $source -o $(pwd)/../objects/macos/x86_64/${source_base%.*}.o; \
+        clang++ $(peko clangflags --os=macos --arch=arm) $source -o $(pwd)/../objects/macos/arm/${source_base%.*}.o; \
+
+        clang++ $(peko clangflags --os=linux --arch=x86_64) $source -o $(pwd)/../objects/linux/x86_64/${source_base%.*}.o; \
+        clang++ $(peko clangflags --os=linux --arch=arm) $source -o $(pwd)/../objects/linux/arm/${source_base%.*}.o; \
+
+        clang++ $(peko clangflags --os=ios --arch=x86_64) $source -o $(pwd)/../objects/ios/x86_64/${source_base%.*}.o; \
+        clang++ $(peko clangflags --os=ios --arch=arm) $source -o $(pwd)/../objects/ios/arm/${source_base%.*}.o; \
+
+        clang++ $(peko clangflags --os=windows --arch=x86_64) $source -o $(pwd)/../objects/windows/${source_base%.*}.o; \
+
+        clang++ $(peko clangflags --os=android --arch=arm) $source -o $(pwd)/../objects/android/${source_base%.*}.o; \
+    done;
+fi
