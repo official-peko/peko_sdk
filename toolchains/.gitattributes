@@ -1,1 +1,5 @@
 android.zip filter=lfs diff=lfs merge=lfs -text
+ios.zip filter=lfs diff=lfs merge=lfs -text
+windows.zip filter=lfs diff=lfs merge=lfs -text
+macos.zip filter=lfs diff=lfs merge=lfs -text
+linux.zip filter=lfs diff=lfs merge=lfs -text
